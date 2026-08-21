@@ -1,0 +1,21 @@
+id = "goose"
+version = "2026.08.21.1"
+min_engine_version = 1
+updated_at = "2026-08-21T00:00:00Z"
+aliases = ["goose-ai"]
+
+[[rules]]
+id = "working_spinner"
+state = "working"
+priority = 100
+region = "whole_recent"
+visible_working = true
+contains = ["(Ctrl+C to interrupt)"]
+
+[[rules]]
+id = "idle_prompt"
+state = "idle"
+priority = 90
+region = "bottom_non_empty_lines(3)"
+visible_idle = true
+contains = ["Enter to send"]
