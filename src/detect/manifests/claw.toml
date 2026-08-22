@@ -1,0 +1,33 @@
+id = "claw"
+version = "2026.08.22.1"
+min_engine_version = 1
+updated_at = "2026-08-22T00:00:00Z"
+aliases = []
+
+[[rules]]
+id = "error_blocked"
+state = "blocked"
+priority = 300
+region = "whole_recent"
+visible_blocker = true
+contains = ["❌ Request failed"]
+
+[[rules]]
+id = "working_placeholder"
+state = "working"
+priority = 100
+region = "whole_recent"
+visible_working = true
+contains = ["🦀 Thinking..."]
+
+[[rules]]
+id = "idle_placeholder"
+state = "idle"
+priority = 90
+region = "bottom_non_empty_lines(3)"
+visible_idle = true
+any = [
+  { contains = ["> "] },
+  { contains = ["Ctrl-C               Clear input"] },
+  { contains = ["Shift+Enter/Ctrl+J   Insert a newline"] },
+]

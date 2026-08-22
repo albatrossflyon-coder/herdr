@@ -46,6 +46,7 @@ pub struct AgentSoundOverrides {
     pub qwen: AgentSoundSetting,
     pub maki: AgentSoundSetting,
     pub goose: AgentSoundSetting,
+    pub claw: AgentSoundSetting,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
@@ -144,6 +145,7 @@ impl AgentSoundOverrides {
             Some(Agent::Qwen) => self.qwen,
             Some(Agent::Maki) => self.maki,
             Some(Agent::Goose) => self.goose,
+            Some(Agent::Claw) => self.claw,
             None => AgentSoundSetting::Default,
         }
     }
@@ -185,6 +187,7 @@ impl Default for AgentSoundOverrides {
             qwen: AgentSoundSetting::Default,
             maki: AgentSoundSetting::Default,
             goose: AgentSoundSetting::Default,
+            claw: AgentSoundSetting::Default,
         }
     }
 }
