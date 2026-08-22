@@ -128,6 +128,14 @@ impl PaneLaunchEnv {
 
 fn apply_pane_launch_env(cmd: &mut CommandBuilder, launch_env: &PaneLaunchEnv) {
     cmd.env_remove("CODEX_THREAD_ID");
+    // Bun's JavaScriptCore JIT emits AVX512 on CPUs that don't support it (e.g.
+    // Intel Meteor Lake), crashing with SIGILL a few seconds into any Bun-based
+    // TUI (OpenCode, Kilo) once code tiers up. Upstream: oven-sh/bun#34215,
+    // unresolved as of Bun 1.4.0. Disabling JIT is a no-op for non-Bun agents
+    // and only slows Bun's own JIT-heavy paths, which matters little for an
+    // interactive CLI. Set unconditionally so it applies regardless of which
+    // `opencode`/`kilo` binary PATH resolves to.
+    cmd.env("BUN_JSC_useJIT", "0");
     for (key, value) in &launch_env.extra {
         cmd.env(key, value);
     }
