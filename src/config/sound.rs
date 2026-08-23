@@ -47,6 +47,7 @@ pub struct AgentSoundOverrides {
     pub maki: AgentSoundSetting,
     pub goose: AgentSoundSetting,
     pub crush: AgentSoundSetting,
+    pub claw: AgentSoundSetting,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
@@ -146,6 +147,7 @@ impl AgentSoundOverrides {
             Some(Agent::Maki) => self.maki,
             Some(Agent::Goose) => self.goose,
             Some(Agent::Crush) => self.crush,
+            Some(Agent::Claw) => self.claw,
             None => AgentSoundSetting::Default,
         }
     }
@@ -188,6 +190,7 @@ impl Default for AgentSoundOverrides {
             maki: AgentSoundSetting::Default,
             goose: AgentSoundSetting::Default,
             crush: AgentSoundSetting::Default,
+            claw: AgentSoundSetting::Default,
         }
     }
 }

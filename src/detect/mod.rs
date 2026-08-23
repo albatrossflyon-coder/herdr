@@ -65,6 +65,7 @@ pub enum Agent {
     Maki,
     Goose,
     Crush,
+    Claw,
 }
 
 impl Agent {
@@ -93,6 +94,7 @@ impl Agent {
         Self::Maki,
         Self::Goose,
         Self::Crush,
+        Self::Claw,
     ];
 
     pub const SCREEN_MANIFEST_AGENTS: [Self; 22] = [
@@ -118,6 +120,7 @@ impl Agent {
         Self::Maki,
         Self::Goose,
         Self::Crush,
+        Self::Claw,
     ];
 }
 
@@ -147,6 +150,7 @@ pub fn agent_label(agent: Agent) -> &'static str {
         Agent::Maki => "maki",
         Agent::Goose => "goose",
         Agent::Crush => "crush",
+        Agent::Claw => "claw",
     }
 }
 
@@ -182,6 +186,7 @@ pub fn interactive_agent_executable(agent: Agent) -> &'static str {
         Agent::Maki => "maki",
         Agent::Goose => "goose",
         Agent::Crush => "crush",
+        Agent::Claw => "claw",
     }
 }
 
@@ -221,6 +226,7 @@ fn lookup_agent(name: &str) -> Option<Agent> {
         "maki" => Some(Agent::Maki),
         "goose" | "goose-ai" => Some(Agent::Goose),
         "crush" => Some(Agent::Crush),
+        "claw" => Some(Agent::Claw),
         _ => None,
     }
 }
@@ -807,6 +813,7 @@ mod tests {
         assert_eq!(parse_agent_label("kilo-code"), Some(Agent::Kilo));
         assert_eq!(parse_agent_label("goose-ai"), Some(Agent::Goose));
         assert_eq!(parse_agent_label("crush"), Some(Agent::Crush));
+        assert_eq!(parse_agent_label("claw"), Some(Agent::Claw));
     }
 
     #[test]
@@ -852,6 +859,7 @@ mod tests {
             (Agent::Maki, "maki"),
             (Agent::Goose, "goose"),
             (Agent::Crush, "crush"),
+            (Agent::Claw, "claw"),
         ];
         assert_eq!(expected.len(), Agent::ALL.len());
         for (agent, executable) in expected {
