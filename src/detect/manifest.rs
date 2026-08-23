@@ -260,6 +260,7 @@ const BUNDLED_MANIFESTS: &[(&str, &str)] = &[
     ("goose", include_str!("manifests/goose.toml")),
     ("crush", include_str!("manifests/crush.toml")),
     ("claw", include_str!("manifests/claw.toml")),
+    ("aura", include_str!("manifests/aura.toml")),
 ];
 
 static MANIFEST_CACHE: OnceLock<RwLock<ManifestCache>> = OnceLock::new();

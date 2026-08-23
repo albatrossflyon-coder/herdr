@@ -66,10 +66,11 @@ pub enum Agent {
     Goose,
     Crush,
     Claw,
+    Aura,
 }
 
 impl Agent {
-    pub const ALL: [Self; 24] = [
+    pub const ALL: [Self; 25] = [
         Self::Pi,
         Self::Claude,
         Self::Codex,
@@ -95,9 +96,10 @@ impl Agent {
         Self::Goose,
         Self::Crush,
         Self::Claw,
+        Self::Aura,
     ];
 
-    pub const SCREEN_MANIFEST_AGENTS: [Self; 22] = [
+    pub const SCREEN_MANIFEST_AGENTS: [Self; 23] = [
         Self::Pi,
         Self::Claude,
         Self::Codex,
@@ -121,6 +123,7 @@ impl Agent {
         Self::Goose,
         Self::Crush,
         Self::Claw,
+        Self::Aura,
     ];
 }
 
@@ -151,6 +154,7 @@ pub fn agent_label(agent: Agent) -> &'static str {
         Agent::Goose => "goose",
         Agent::Crush => "crush",
         Agent::Claw => "claw",
+        Agent::Aura => "aura",
     }
 }
 
@@ -187,6 +191,7 @@ pub fn interactive_agent_executable(agent: Agent) -> &'static str {
         Agent::Goose => "goose",
         Agent::Crush => "crush",
         Agent::Claw => "claw",
+        Agent::Aura => "aura",
     }
 }
 
@@ -227,6 +232,7 @@ fn lookup_agent(name: &str) -> Option<Agent> {
         "goose" | "goose-ai" => Some(Agent::Goose),
         "crush" => Some(Agent::Crush),
         "claw" => Some(Agent::Claw),
+        "aura" | "aura-code" => Some(Agent::Aura),
         _ => None,
     }
 }
@@ -814,6 +820,8 @@ mod tests {
         assert_eq!(parse_agent_label("goose-ai"), Some(Agent::Goose));
         assert_eq!(parse_agent_label("crush"), Some(Agent::Crush));
         assert_eq!(parse_agent_label("claw"), Some(Agent::Claw));
+        assert_eq!(parse_agent_label("aura"), Some(Agent::Aura));
+        assert_eq!(parse_agent_label("aura-code"), Some(Agent::Aura));
     }
 
     #[test]
@@ -860,6 +868,7 @@ mod tests {
             (Agent::Goose, "goose"),
             (Agent::Crush, "crush"),
             (Agent::Claw, "claw"),
+            (Agent::Aura, "aura"),
         ];
         assert_eq!(expected.len(), Agent::ALL.len());
         for (agent, executable) in expected {

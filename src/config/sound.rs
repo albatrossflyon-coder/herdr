@@ -48,6 +48,7 @@ pub struct AgentSoundOverrides {
     pub goose: AgentSoundSetting,
     pub crush: AgentSoundSetting,
     pub claw: AgentSoundSetting,
+    pub aura: AgentSoundSetting,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
@@ -148,6 +149,7 @@ impl AgentSoundOverrides {
             Some(Agent::Goose) => self.goose,
             Some(Agent::Crush) => self.crush,
             Some(Agent::Claw) => self.claw,
+            Some(Agent::Aura) => self.aura,
             None => AgentSoundSetting::Default,
         }
     }
@@ -191,6 +193,7 @@ impl Default for AgentSoundOverrides {
             goose: AgentSoundSetting::Default,
             crush: AgentSoundSetting::Default,
             claw: AgentSoundSetting::Default,
+            aura: AgentSoundSetting::Default,
         }
     }
 }
