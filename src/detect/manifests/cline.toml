@@ -18,6 +18,14 @@ any = [
 ]
 
 [[rules]]
+id = "cline_idle"
+state = "idle"
+priority = 100
+region = "whole_recent"
+visible_idle = true
+contains = ["What can I do for you?"]
+
+[[rules]]
 id = "default_cline_working"
 state = "working"
 priority = -10
