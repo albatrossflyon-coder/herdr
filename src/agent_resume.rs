@@ -207,6 +207,12 @@ pub fn plan(source: &str, agent: &str, session_ref: &AgentSessionRef) -> Option<
         ("herdr:grok", "grok", AgentSessionRefKind::Id) => {
             vec!["grok".into(), "--resume".into(), session_ref.value.clone()]
         }
+        ("herdr:claw", "claw", AgentSessionRefKind::Id) => {
+            vec!["claw".into(), "--resume".into(), session_ref.value.clone()]
+        }
+        ("herdr:cline", "cline", AgentSessionRefKind::Id) => {
+            vec!["cline".into(), "--id".into(), session_ref.value.clone()]
+        }
         _ => return None,
     };
 
@@ -244,6 +250,8 @@ pub(crate) fn is_official_agent_source(source: &str, agent: &str) -> bool {
             | ("herdr:cursor", "cursor")
             | ("herdr:antigravity_cli", "agy")
             | ("herdr:grok", "grok")
+            | ("herdr:claw", "claw")
+            | ("herdr:cline", "cline")
     )
 }
 
