@@ -250,8 +250,15 @@ pub(crate) fn is_official_agent_source(source: &str, agent: &str) -> bool {
             | ("herdr:cursor", "cursor")
             | ("herdr:antigravity_cli", "agy")
             | ("herdr:grok", "grok")
+            | ("herdr:crush", "crush")
             | ("herdr:claw", "claw")
+            | ("herdr:aura", "aura")
+            | ("herdr:gemini", "gemini")
             | ("herdr:cline", "cline")
+            | ("herdr:byNara", "byNara")
+            | ("herdr:amp", "amp")
+            | ("herdr:maki", "maki")
+            | ("herdr:goose", "goose")
     )
 }
 
