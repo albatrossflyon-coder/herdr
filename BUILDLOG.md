@@ -20,6 +20,8 @@ Terminal workspace/multiplexer for coordinating multiple AI coding agents in pan
 
 Commit status: `~/.local/bin/board` (wrapper) and `~/.local/bin/board-real` (renamed real binary) are WSL2 runtime files, not git-tracked. `~/.local/herdr_controller.py`'s `board()` helper patch is the same — WSL2, not in this repo's git tree. Nothing in this git repo changed.
 
+**Follow-on, same session: extended the wrapper to also block the direct-dispatch bypass.** `board move ... "In Progress"` (and `board card move ... "In Progress"`, by name or column id `4`) now also refuses, pointing callers at `herdr_controller.py dispatch` instead — closing the other half of herdr.md §11's standing rule ("never call `board move <id> Done` OR `board move <id> "In Progress"` directly"), not just the Done half. Live-tested: raw move refused; `herdr_controller.py dispatch` still works end-to-end (real lease + task packet recorded against the fresh Hermes manager pane, cleaned up via `requeue`).
+
 ## 2026-08-30 2:28 AM CDT (TIC 1) — P0 control-plane gate built and live-tested: auto-success no longer reaches Done unverified
 
 **Real root cause found and fixed on the live board (board_id 2):** the `In Progress` column's `on_success_column_id` pointed straight at `Done` (id 3) — meaning any auto-dispatched run that reported success landed in Done with zero independent check. This is the exact mechanism behind two of the seven "7 things" items being false completions (Item 1's nonexistent daemon watcher, Item 7's unwritten config edits) — self-report was never checked because there was no state between "succeeded" and "Done" for a check to happen in.
