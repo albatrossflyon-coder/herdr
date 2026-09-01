@@ -152,6 +152,7 @@ impl AgentSoundOverrides {
             Some(Agent::Aura) => self.aura,
             Some(Agent::Interpreter) => AgentSoundSetting::Default,
             Some(Agent::Manus) => AgentSoundSetting::Default,
+            Some(Agent::Dsh) => AgentSoundSetting::Default,
             None => AgentSoundSetting::Default,
         }
     }

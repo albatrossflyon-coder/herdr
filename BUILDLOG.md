@@ -646,3 +646,19 @@ Picked up the pending-agent list above. Chris chose to wire the two already-read
 **Still pending from the original list:** Pi (cloned at `C:\Repos\reference-repos\pi`, not yet built — no `pi` binary on PATH — and never scanned) and `dsh` (cloned, never scanned). Both need those steps before the same enum/lookup wiring can happen. Screen-state manifests for all four (including today's two) are a separate follow-up requiring a live pane to observe real terminal output.
 
 Commit status: committed and pushed to `feature/four-agent-integration` on the fork, independently verified via `gh api`.
+
+## 2026-09-01, later — Pi and dsh built, wired, and linked; all 4 pending agents done (enum/lookup level)
+
+**Correction to the entry directly above (and to the earlier "Pending agent additions" list further up this file):** `dsh` was NOT actually unscanned — Chris caught this live. It has a real vuln-hunter/semgrep scan on record from 2026-08-30 (`session-tic2-deepseek-harness-herdr-restart-failed.md`): 177 raw findings, 144 CI-hygiene noise (mutable GitHub Actions tags), 25+4 the tool correctly flagging expected subprocess execution (an agent harness runs shell commands by design, its own `SAFETY.md` discloses this), 2 small real items neither a blocker (unsanitized `dangerouslySetInnerHTML` in the markdown renderer, missing pnpm supply-chain hardening flags). That result never made it into this file or the pending-agent memory note, which is why it read as "never scanned" both times. Re-scanning it today (started, then correctly stopped mid-run once the existing record was found) would have been pure duplicate work — the actual gap was documentation, not verification.
+
+**Pi:** `npm install --ignore-scripts && npm run build` (network build, not `build:offline` — that path needs a release-source-archive's bundled model-data snapshot that a fresh clone doesn't have). Built clean, `pi --version` → `0.84.4`. `npm link` from `packages/coding-agent` makes `pi` resolve globally on Windows PATH, matching herdr's existing (previously binary-less) `Agent::Pi` kind exactly — no enum change needed for Pi itself.
+
+**`dsh`:** `pnpm install && pnpm run build`. Built clean, `dsh --version` → `0.1.2-alpha.1`. `pnpm link --global` failed (`ERR_PNPM_NO_GLOBAL_BIN_DIR`, global bin dir never set up on this machine) — fell back to `npm link` from `apps/cli`, which worked identically. `dsh` now resolves globally on PATH.
+
+**Wired `Agent::Dsh` into `src/detect/mod.rs`** (27th → the 4th new variant this session): `ALL` 28 → 29, label/executable `"dsh"`, lookup aliases `"dsh" | "deepseek-harness"`. Same treatment as `Interpreter`/`Manus` earlier today in `src/config/sound.rs` and the `every_agent_has_a_canonical_interactive_executable` test. No screen-state manifest yet, same deferred tier as the other three new agents plus `Omp`/`Mastracode`.
+
+**Verified:** `cargo test --bin herdr detect::` on a WSL2-native clone (zig 0.15.2 via inline `PATH` export, not `.bashrc` — same non-interactive-shell gotcha as earlier today): 105/105 passing.
+
+**All 4 originally-pending agents (Pi, `dsh`, Open Interpreter, Manus CLI) are now done at the enum/lookup/PATH level.** Remaining, deliberately deferred: a screen-state manifest (`manifests/<kind>.toml`) for each of the four, which needs watching each tool's real terminal output live in an actual herdr pane — not something to fabricate from reading source.
+
+Commit status: committed and pushed to `feature/four-agent-integration` on the fork, independently verified via `gh api`.

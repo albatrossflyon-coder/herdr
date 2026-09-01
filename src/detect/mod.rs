@@ -69,10 +69,11 @@ pub enum Agent {
     Aura,
     Interpreter,
     Manus,
+    Dsh,
 }
 
 impl Agent {
-    pub const ALL: [Self; 28] = [
+    pub const ALL: [Self; 29] = [
         Self::Pi,
         Self::Claude,
         Self::Codex,
@@ -101,6 +102,7 @@ impl Agent {
         Self::Aura,
         Self::Interpreter,
         Self::Manus,
+        Self::Dsh,
     ];
 
     pub const SCREEN_MANIFEST_AGENTS: [Self; 24] = [
@@ -161,6 +163,7 @@ pub fn agent_label(agent: Agent) -> &'static str {
         Agent::Aura => "aura",
         Agent::Interpreter => "interpreter",
         Agent::Manus => "manus",
+        Agent::Dsh => "dsh",
     }
 }
 
@@ -200,6 +203,7 @@ pub fn interactive_agent_executable(agent: Agent) -> &'static str {
         Agent::Aura => "aura",
         Agent::Interpreter => "interpreter",
         Agent::Manus => "manus",
+        Agent::Dsh => "dsh",
     }
 }
 
@@ -243,6 +247,7 @@ fn lookup_agent(name: &str) -> Option<Agent> {
         "aura" | "aura-code" => Some(Agent::Aura),
         "interpreter" | "open-interpreter" | "openinterpreter" => Some(Agent::Interpreter),
         "manus" | "manus-cli" => Some(Agent::Manus),
+        "dsh" | "deepseek-harness" => Some(Agent::Dsh),
         _ => None,
     }
 }
@@ -881,6 +886,7 @@ mod tests {
             (Agent::Aura, "aura"),
             (Agent::Interpreter, "interpreter"),
             (Agent::Manus, "manus"),
+            (Agent::Dsh, "dsh"),
         ];
         assert_eq!(expected.len(), Agent::ALL.len());
         for (agent, executable) in expected {
