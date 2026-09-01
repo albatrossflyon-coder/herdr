@@ -150,6 +150,8 @@ impl AgentSoundOverrides {
             Some(Agent::Crush) => self.crush,
             Some(Agent::Claw) => self.claw,
             Some(Agent::Aura) => self.aura,
+            Some(Agent::Interpreter) => AgentSoundSetting::Default,
+            Some(Agent::Manus) => AgentSoundSetting::Default,
             None => AgentSoundSetting::Default,
         }
     }

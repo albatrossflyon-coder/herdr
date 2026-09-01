@@ -67,10 +67,12 @@ pub enum Agent {
     Crush,
     Claw,
     Aura,
+    Interpreter,
+    Manus,
 }
 
 impl Agent {
-    pub const ALL: [Self; 26] = [
+    pub const ALL: [Self; 28] = [
         Self::Pi,
         Self::Claude,
         Self::Codex,
@@ -97,6 +99,8 @@ impl Agent {
         Self::Crush,
         Self::Claw,
         Self::Aura,
+        Self::Interpreter,
+        Self::Manus,
     ];
 
     pub const SCREEN_MANIFEST_AGENTS: [Self; 24] = [
@@ -155,6 +159,8 @@ pub fn agent_label(agent: Agent) -> &'static str {
         Agent::Crush => "crush",
         Agent::Claw => "claw",
         Agent::Aura => "aura",
+        Agent::Interpreter => "interpreter",
+        Agent::Manus => "manus",
     }
 }
 
@@ -192,6 +198,8 @@ pub fn interactive_agent_executable(agent: Agent) -> &'static str {
         Agent::Crush => "crush",
         Agent::Claw => "claw",
         Agent::Aura => "aura",
+        Agent::Interpreter => "interpreter",
+        Agent::Manus => "manus",
     }
 }
 
@@ -233,6 +241,8 @@ fn lookup_agent(name: &str) -> Option<Agent> {
         "crush" => Some(Agent::Crush),
         "claw" => Some(Agent::Claw),
         "aura" | "aura-code" => Some(Agent::Aura),
+        "interpreter" | "open-interpreter" | "openinterpreter" => Some(Agent::Interpreter),
+        "manus" | "manus-cli" => Some(Agent::Manus),
         _ => None,
     }
 }
@@ -869,6 +879,8 @@ mod tests {
             (Agent::Crush, "crush"),
             (Agent::Claw, "claw"),
             (Agent::Aura, "aura"),
+            (Agent::Interpreter, "interpreter"),
+            (Agent::Manus, "manus"),
         ];
         assert_eq!(expected.len(), Agent::ALL.len());
         for (agent, executable) in expected {
