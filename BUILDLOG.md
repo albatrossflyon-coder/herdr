@@ -5,6 +5,45 @@ Fork of `herdrdev/herdr` at `albatrossflyon-coder/herdr`, created 2026-08-21. Th
 ## What this is
 Terminal workspace/multiplexer for coordinating multiple AI coding agents in panes, with a real CLI + socket API for cross-agent orchestration (`agent.prompt`, `agent.wait`, `pane.report_agent`). Local clone: `C:\Repos\herdr` (origin: upstream `ogulcancelik/herdr`, resolves to `herdrdev/herdr`; `fork` remote: `albatrossflyon-coder/herdr`).
 
+## 2026-09-03 ~9:15 PM CDT (TIC 1) — Antigravity/agy tier: more evidence, still NOT proven Pro-vs-free. New confirmed facts + the "wrong meter" hypothesis.
+
+Follow-on to the 2026-09-02 5:11 AM entry below. Chris re-raised it: his Google One AI Premium / AI Pro usage meter (gemini.google.com → Settings → Usage limits) does not move when herdr agents drive `agy`, so he believes agy is on a free tier. Dug into agy's own logs + Google's endpoints with his live token.
+
+**Newly confirmed (primary source — agy's `~/.gemini/antigravity-cli/log/*.log` + `oauth2.googleapis.com/tokeninfo` + `daily-cloudcode-pa.googleapis.com`):**
+- agy auth is clean: OAuth, `server_oauth.go:192] applyAuthResult: email=albatrossflyon1@gmail.com, authMethod=consumer, quotaProject=` (empty quotaProject = normal for a consumer account). Token valid, refreshes fine.
+- `~/.gemini/antigravity-cli/settings.json` has **NO `modelProvider` / static-API-key override** — so agy is NOT bypassing subscription entitlements via a static key (a real failure mode per external research). Already clean.
+- `~/.gemini/antigravity-cli/antigravity-oauth-token` → `"auth_method": "consumer"`.
+- A real turn completes fine: `agy -p "say pong" --model gemini-3.1-pro-high` returned `pong`.
+- `loadCodeAssist` (pluginType GEMINI/CLOUD_CODE) returns: `allowedTiers: [standard-tier "Gemini Code Assist" — needs a user-defined GCP project]`; `ineligibleTiers: [free-tier "Gemini Code Assist for individuals" — reasonCode UNSUPPORTED_CLIENT, "migrate to the Antigravity suite"]`. i.e. the old free Code Assist path is dead; Google forces Antigravity.
+- Valid `plugin_type` enum values do NOT include "ANTIGRAVITY"/"ANTIGRAVITY_CLI" (400 INVALID_ARGUMENT) — agy sends `GEMINI`. Antigravity's own Pro/free quota is NOT exposed by the plain `loadCodeAssist` GEMINI response; couldn't locate the RPC that returns it (rabbit-holed, stopped on Chris's call).
+
+**Hypothesis (NOT proven), stated as hypothesis this time:** the unmoved gemini.google.com meter is expected, not a bug. Per Google's Antigravity docs + the "AI Pro/Ultra rate limits" blog, Antigravity has its own quota bucket (5-hour refresh for Pro) SEPARATE from the Gemini consumer chatbot app's usage page. agy activity would never show on that page. This does not prove agy is on Pro — it means that particular test is inconclusive.
+
+**Still genuinely open:** whether agy currently gets the Pro Antigravity quota (5h refresh) or the non-Pro weekly quota. Chris no longer has the Antigravity IDE installed, so the "check the IDE quota panel" path is out.
+
+**Next steps identified (Chris's actions, from external research + these findings):**
+1. Age verification at `myaccount.google.com/age-verification` on `albatrossflyon1@gmail.com` — a documented blocker for Google One AI Pro → Antigravity quota pass-through.
+2. Confirm AI Pro is active on `albatrossflyon1@gmail.com` specifically (one.google.com), not `albatrossaionline@`.
+3. Find where Antigravity usage is shown without the IDE (antigravity.google account area, or the quota RPC agy's `quota_manager.go` hits — not yet located).
+
+**No code changed. No repo change. Diagnostic only.**
+
+## 2026-09-02 5:11 AM CDT (TIC 1) — Antigravity/agy "Starter Quota" discrepancy: partial evidence gathered, NOT resolved — do not treat as closed
+
+**The discrepancy** (flagged 2026-08-30, never root-caused: "Antigravity/agy shows a 'Starter Quota' block despite Chris insisting the account is a real Pro plan") — still open. Corrected after Chris caught an overclaim: an earlier version of this entry called it "resolved." It isn't. Real findings below, but the actual explanation is still unconfirmed.
+
+**Findings, each independently verified:**
+- WSL2's `agy` (`~/.gemini/antigravity-cli/`) is logged in as `albatrossflyon1@gmail.com` — confirmed via Google's own `oauth2/v3/tokeninfo` endpoint against the live access token (real introspection, not assumed from config).
+- `agy models` lists `claude-opus-4-6-thinking`, `claude-sonnet-4-6`, and `gemini-3.1-pro-high` as available — real Pro-tier entitlement on that account, not a free-tier catalog.
+- Live-dispatched a real task to `agy` inside herdr (via Hermes, `agy -p "..." --dangerously-skip-permissions --output-format text`) — completed successfully with a correct, real result. Zero quota/tier warning anywhere in the output.
+- Chris watched Google's Gemini consumer-app "Usage limits" page (gemini.google.com) live during that exact call — it did not visibly move, 0% used before and after.
+
+**What this does NOT prove, corrected on Chris's direct pushback:** the unmoved meter is not solid evidence that Antigravity's quota and this Gemini page are unrelated systems — a single lightweight call may simply be too small to move a coarse, whole-percentage display either way. That "separate systems" theory was asserted here with more confidence than the evidence actually supports, and Chris rejected the same conclusion being written into the vault. **Still genuinely open:** what "Starter Quota" actually referred to, whether it would recur under real/heavier usage, and whether this Gemini-app page has any real relationship to Antigravity's quota at all. Needs either a heavier real-usage test (several real calls, watch for ANY meter movement) or finding Antigravity's own actual account/billing page (not this Gemini consumer app) before calling this closed.
+
+**Separate real bug found and fixed along the way (this part IS solid, unrelated to the quota question):** `C:/Users/albat/.claude/hooks/herdr-hermes-manager-pane.txt` (the supervisor-gate hook's source of truth for which pane is the live Hermes manager) still pointed at `w1:p27`, a stale reference — the actual live Hermes agent had moved to `w1:p28` at some point without the tracking file being updated. This caused the gate hook to reject legitimate dispatches to the real, correctly-identified Hermes pane (same failure mode already logged once before, 2026-08-24/25, never fixed at the time). Fixed by updating the file to `w1:p28`, matching the hook's own documented recovery procedure. **Recurring risk, not fully closed:** nothing currently keeps this file in sync automatically when Hermes's pane changes (session restart, pane recreation) — worth a real fix (read live from `mcp__herdr__agent_list` instead of a static file) if this recurs a third time.
+
+**Verification:** the pane-tracker fix is verified (dispatch worked after the edit). The quota question is NOT verified — flagged for whoever picks this up next, don't re-start from zero but don't treat it as answered either. No code shipped/pushed this entry — this was a diagnostic + a one-line config fix to a local hook file, not a repo change.
+
 ## 2026-08-31 4:47 AM CDT (TIC 1) — Final working state: Manager profile stays, but points at CLIProxyAPI's `mistral-medium`, not OmniRoute at all
 
 **Chris's final call, after the profile-isolation fix below still hit real OmniRoute instability:** the `omniroute-auto` pass-through (whether reached via CLIProxyAPI or direct, per every attempt in this file tonight) kept tracing back to one unstable leg -- OmniRoute's OpenRouter connection specifically, which can serve small test requests but not Manager's real, larger ones, and flaps between working and "credits exhausted" unpredictably. Rather than keep fighting that one connection, **Manager's isolated profile now points at a specific, proven-stable CLIProxyAPI model (`mistral-medium`, 6 real keys, confirmed reliable all night) instead of `omniroute-auto`.** No OmniRoute involvement in Manager's path at all right now.
@@ -662,3 +701,35 @@ Commit status: committed and pushed to `feature/four-agent-integration` on the f
 **All 4 originally-pending agents (Pi, `dsh`, Open Interpreter, Manus CLI) are now done at the enum/lookup/PATH level.** Remaining, deliberately deferred: a screen-state manifest (`manifests/<kind>.toml`) for each of the four, which needs watching each tool's real terminal output live in an actual herdr pane — not something to fabricate from reading source.
 
 Commit status: committed and pushed to `feature/four-agent-integration` on the fork, independently verified via `gh api`.
+
+## 2026-09-02 (TIC 2) — direct-state integration hooks: 13 native installs, a reusable custom hook, goose proven end-to-end. NO code in this repo changed.
+
+All work this session is runtime config (WSL2 dotfiles + agent hook configs) and `herdr integration install` runs — this fork's `src/` is untouched, nothing to commit here.
+
+**Standing rule added (vault `Projects/herdr.md`, top):** before making any change to herdr or answering any question about how it works, read herdr's own docs first (`C:\Repos\herdr\docs\`, herdr.dev/docs, agent-guide.md). Added by Chris after this session built and then mis-diagnosed a whole approach without reading `docs/next/website/src/content/docs/integrations.mdx`.
+
+**13 native integration hooks installed / refreshed to `current`** via `herdr integration install <x>`:
+`opencode` v10 (was the root-cause fix for its long-standing board-dispatch `agent_not_found` — the lifecycle plugin was simply never installed; agent-start confirmed working after), `claude` v7→v8, `hermes` v4→v5, `codex` v8, `omp` v8, `kilo` v4, `grok` v1, `qwen` v1, `pi` v8, `cursor` v1, `mastracode` v2 (new); `copilot` v3 and `antigravity-cli` v2 were already current. `devin`/`droid`/`qodercli` refused — those CLIs aren't installed. Went from 2 agents with a current lifecycle/session hook to 13.
+
+**Per herdr's `integrations.mdx` (verified against source):** only 6 kinds get *lifecycle* authority from their hook (Pi, OMP, Kimi, OpenCode, Kilo, MastraCode — the `full_lifecycle_hook_authority()` list in `src/detect/mod.rs`). The rest are session-identity only; their working/idle/blocked still comes from screen manifest detection. gemini, claw, goose, crush, aura have NO native integration at all.
+
+**Reusable custom-integration hook script** — `~/.local/bin/herdr-custom-agent-state.sh` (POSIX sh, executable). Args: `<agent-label> <mode>` where mode is `working|idle|blocked|session|release|auto`. `auto` maps a hook event name from stdin JSON to a state (`BeforeAgent`/`PreToolUse`/`UserPromptSubmit`→working, `AfterAgent`/`Stop`→idle, `PostToolUseFailure`→blocked, `Notification`+`ToolPermission`→blocked, `SessionEnd`→release). Guards on `HERDR_ENV=1` + `HERDR_PANE_ID` + `HERDR_SOCKET_PATH` so it's a no-op outside a herdr pane. Monotonic per-pane+agent `--seq` from a counter file under `$XDG_RUNTIME_DIR/herdr-custom-seq/`. Calls `herdr pane report-agent` / `report-agent-session` / `release-agent`. **Has no version-controlled home yet — only `~/.local/bin`.**
+
+**Investigation arc, recorded so it isn't repeated:**
+1. Three AIs (ChatGPT, a Claude, Gemini) converged: use herdr's documented `pane report-agent --source custom:<name>` path — no fork changes needed.
+2. Built the script + wired gemini's `~/.gemini/settings.json` `hooks` block. First live test on a `--kind gemini` pane showed state not moving.
+3. **Wrongly concluded** it was a dead end after a partial read of `src/detect/mod.rs` (the 6-pair allowlist). Recorded that as fact — it was wrong.
+4. Re-read `integrations.mdx` + the full `set_hook_authority_at` (`src/terminal/state.rs`) + ran a clean synthetic test: `herdr pane report-agent w1:pX --source custom:probe --agent probe --state working|blocked|idle --seq N` on a plain pane drove state through all three; a lower `--seq` was correctly rejected as stale.
+5. **Root cause of the failed gemini test:** during debugging, a manual `report-agent ... --seq 99` had been fired for `custom:gemini`, so every real hook report afterward (normal low seq) was correctly discarded as stale. The custom path works exactly as documented.
+
+**goose — proven working end-to-end.** Plugin at `~/.agents/plugins/herdr-state/` (`plugin.json` + `hooks/hooks.json`) mapping `SessionStart`→session, `UserPromptSubmit`→working, `Stop`→idle, `PostToolUseFailure`→blocked, `SessionEnd`→release to `herdr-custom-agent-state.sh goose <mode>`. Live test on a `--kind goose` managed pane: every prompt produced exactly 2 hook fires (`UserPromptSubmit` + `Stop`) and exactly 2 `state_change_seq` increments; 5 fires total across 2.5 prompts including the initial `SessionStart`. Goose's state now comes from the hook, not screen detection. (Couldn't freeze-frame the `working` state mid-turn only because `agnes-ai-flash` answers in ~3s — a polling limitation, not a functional gap; the synthetic `probe` test already proved `report-agent` moves state for a custom source.)
+
+**gemini — installed, not finished.** `~/.gemini/settings.json` has the `hooks` block (`SessionStart`/`BeforeAgent`/`AfterAgent`/`Notification`/`SessionEnd`) + `"selectedAuthType": "gemini-api-key"`. Confirmed isolated from `agy`, which reads `~/.gemini/antigravity-cli/settings.json`. Blocked on gemini's own side: its lifecycle hooks fired only ~2× in a full session (hook-config format needs verifying against a working gemini, or it only emits certain events), and the AI Studio key used (`AQ.Ab8…`, label "Gemini claude code army") had ~1-minute latency for a trivial prompt — likely rate-limited; use a different key for real testing.
+
+**claw — deferred.** `~/.local/bin/claw` is a dead symlink to a cleaned WSL2 build dir. A built `claw.exe` exists at `C:\Repos\claw-code\rust\target\release\claw.exe` (2026-08-14). Either repoint the WSL2 PATH to `/mnt/c/Repos/claw-code/rust/target/release/claw.exe` (WSL2 runs `.exe`; a Rust TUI over interop may have terminal quirks) or rebuild native. claw-code is also renaming to `agent-code` upstream — moving target.
+
+**crush — wait for upstream.** Charmbracelet Crush currently fires only `PreToolUse` (working signal, no idle/stop). PR #3146 adds `Stop`/`SessionStart`/`SessionEnd`/`UserPromptSubmit`/`PermissionRequest`/`PostToolUse` — not merged as of Aug 2026. Integrate when it ships; the config shape will match (`~/.config/crush/crush.json`).
+
+**aura — skip.** No lifecycle-hook engine found in `aura-code`. `~/.aura/plugins/` is a plugin system, not an external event-callback contract. Screen-detection only unless the project adds hooks.
+
+**Open follow-ups:** LEARNINGS.md entry (seq-staleness gotcha; read `set_hook_authority_at` fully, not just the allowlist); finish gemini (better key + hook-format check); claw repoint/rebuild; a version-controlled home for `herdr-custom-agent-state.sh`; and the upstream herdr issue proposing a data-driven target-descriptor to replace the ~7-file per-agent integration pattern (Gemini drafted a TOML+Rust schema — in the 2026-09-02 brainstorm docs).
